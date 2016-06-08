@@ -17,7 +17,7 @@ class Drawer(object):
     self.height -= 1 # for status
 
     self._status = scr.subwin(1, self.width, 0, 0)
-    self._field = scr.subwin(self.height - 1, self.width, 1, 0)
+    self._field = scr.subwin(self.height, self.width, 1, 0)
 
     cs.init_pair(ct.P_BLUE,    cs.COLOR_BLUE,   -1)
     cs.init_pair(ct.P_RED,     cs.COLOR_RED,    -1)
