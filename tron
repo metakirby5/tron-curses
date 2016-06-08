@@ -1,0 +1,201 @@
+#!/usr/bin/env python
+
+"""
+tron-curses
+
+A curses port of tron with MDP AI.
+"""
+
+import numpy as np
+import curses as cs
+import argparse as ap
+import threading as th
+from time import sleep
+
+from sys import stderr
+
+
+# Constants
+DEFAULTS = {
+  'rate': 0.1,
+  'cpus': 1,
+}
+
+N = 'N'
+S = 'S'
+E = 'E'
+W = 'W'
+
+W_PAIR = 0
+B_PAIR = 1
+R_PAIR = 2
+Y_PAIR = 3
+G_PAIR = 4
+CPU_COLORS = 4
+
+K_QUIT = 'q'
+
+class Player(object):
+  cur_id = 0
+
+  def __init__(self, x, y, dir):
+    self.id = self.__class__.cur_id
+    self.__class__.cur_id += 1
+
+    self.x = x
+    self.y = y
+    self.set_dir(dir)
+
+    self.alive = True
+
+  def __repr__(self):
+    return '{}@({},{})'.format(self.id, self.x, self.y)
+
+  def set_dir(self, dir):
+    self.dx = 1 if dir == E else -1 if dir == W else 0
+    self.dy = 1 if dir == S else -1 if dir == N else 0
+
+  # Performs motion update
+  def step(self):
+    if self.alive:
+      self.x += self.dx
+      self.y += self.dy
+
+  def kill(self):
+    self.alive = False
+
+
+class Controller(object):
+  def __init__(self, player):
+    self.player = player
+
+
+class KeyController(Controller):
+  def __init__(self, player, key_n, key_s, key_e, key_w):
+    super(self.__class__, self).__init__(player)
+
+    self.keymap = {
+      key_n: N,
+      key_s: S,
+      key_e: E,
+      key_w: W,
+    }
+
+  def handle_key(self, k):
+    try:
+      self.player.set_dir(self.keymap[k])
+    except KeyError:
+      # Ignore
+      pass
+
+
+class AIController(Controller):
+  def __init__(self, player, alg):
+    super(self.__class__, self).__init__(player)
+
+  def handle_tick(self, board):
+    self.player.set_dir(alg(board))
+
+class Game(th.Thread):
+  def __init__(self, redraw, rate, width, height):
+    super(self.__class__, self).__init__()
+    
+    self.redraw = redraw
+    self.rate = rate
+    self.width = width
+    self.height = height
+
+    self.running = True
+    self.players = []
+    self.ai_controllers = []
+
+  # Game loop
+  def run(self):
+    while self.running:
+      for player in self.players:
+        player.step()
+      self.redraw(self)
+      sleep(self.rate)
+
+  def stop(self):
+    self.running = False
+
+  def new_player(self):
+    # TODO don't hardcode
+    p = Player(self.width * 1 / 4, self.height / 2, E)
+    self.players.append(p)
+    return p
+
+
+class Drawer(object):
+  def __init__(self, scr):
+    self.height, self.width = scr.getmaxyx()
+    self.height -= 1 # for status
+
+    self._status = scr.subwin(1, self.width, 0, 0)
+    self._field = scr.subwin(self.height - 1, self.width, 1, 0)
+
+    cs.init_pair(B_PAIR, cs.COLOR_BLUE,   -1)
+    cs.init_pair(R_PAIR, cs.COLOR_RED,    -1)
+    cs.init_pair(Y_PAIR, cs.COLOR_YELLOW, -1)
+    cs.init_pair(G_PAIR, cs.COLOR_GREEN,  -1)
+
+  def redraw(self, game):
+    cs.curs_set(0)
+    for player in game.players:
+      if 0 <= player.x < self.width and 0 <= player.y < self.height:
+        self._field.addstr(player.y, player.x, 'X')
+    self._field.refresh()
+
+
+def parse_args():
+  parser = ap.ArgumentParser(description=__doc__,
+                             formatter_class=ap.RawDescriptionHelpFormatter)
+
+  parser.add_argument('-t',
+                      help="""
+                      time step rate.
+                      Default: {}
+                      """.format(DEFAULTS['rate']),
+                      dest='rate',
+                      type=float,
+                      default=DEFAULTS['rate'])
+
+  parser.add_argument('-c',
+                      help="""
+                      number of computer opponents.
+                      Default: {}
+                      """.format(DEFAULTS['cpus']),
+                      dest='cpus',
+                      type=int,
+                      default=DEFAULTS['cpus'])
+
+  return parser.parse_args()
+
+
+def main(scr):
+  args = parse_args()
+  cs.use_default_colors()
+
+  drawer = Drawer(scr)
+  game = Game(drawer.redraw, args.rate, drawer.width, drawer.height)
+
+  controller = KeyController(
+    game.new_player(),
+    cs.KEY_UP, cs.KEY_DOWN, cs.KEY_RIGHT, cs.KEY_LEFT)
+
+  scr.refresh()
+  game.daemon = True
+  game.start()
+
+  # Read input
+  while True:
+    c = scr.getch()
+    if c == ord(K_QUIT):
+      break
+    else:
+      controller.handle_key(c)
+
+
+if __name__ == '__main__':
+  cs.wrapper(main)
