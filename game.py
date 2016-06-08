@@ -15,26 +15,26 @@ class Tile(object):
 class Game(Thread):
   def __init__(self, redraw, rate, width, height):
     super(self.__class__, self).__init__()
+    self.daemon = True
     
     self.redraw = redraw
     self.rate = rate
     self.width = width
     self.height = height
 
-    self.running = True
     self.players = {}
-    self.ai_controllers = []
     self.grid = np.fromfunction(
       np.vectorize(lambda x, y: Tile(ct.T_FLOOR, x, y)),
       (width, height), dtype=int)
 
   # Game loop
   def run(self):
+    self.running = True
     self.place_players()
 
     while self.running:
       # Move each player
-      for _, player in self.players.iteritems():
+      for player in self.players.itervalues():
         if not player.alive:
           continue
 
@@ -54,7 +54,9 @@ class Game(Thread):
           player.kill()
           player.unstep()
 
-      # TODO check if one player left
+      # If one player left, end the game
+      if sum(player.alive for player in self.players.itervalues()) == 1:
+        self.running = False
 
       self.redraw(self)
       sleep(self.rate)
@@ -66,7 +68,7 @@ class Game(Thread):
   def place_players(self):
     y = self.height / 2
     inc = self.width / (len(self.players) + 1)
-    for i, player in self.players.iteritems():
+    for i, player in enumerate(self.players.itervalues()):
       x = (i + 1) * inc
       player.set_pos(x, y)
       player.set_dir(ct.NORTH)

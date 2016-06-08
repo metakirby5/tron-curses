@@ -15,6 +15,36 @@ from graphics import Drawer
 from game import Game
 
 
+class GameSession(object):
+  def __init__(self, scr, rate):
+    self.scr = scr
+    self.rate = rate
+    self.drawer = Drawer(scr)
+
+    self.controllers = [
+      KeyController(cs.KEY_UP, cs.KEY_DOWN, cs.KEY_RIGHT, cs.KEY_LEFT),
+      KeyController(ord('w'), ord('s'), ord('d'), ord('a')),
+    ]
+
+    self.start()
+
+  def start(self):
+    self.game = Game(
+      self.drawer.redraw, self.rate,
+      self.drawer.width, self.drawer.height)
+    for controller in self.controllers:
+      controller.player = self.game.new_player()
+    self.game.start()
+
+  def handle_key(self, k):
+    if k == ord(ct.K_RESTART):
+      self.game.stop()
+      self.start()
+    else:
+      for controller in self.controllers:
+        controller.handle_key(k)
+
+
 def parse_args():
   parser = ap.ArgumentParser(description=__doc__,
                              formatter_class=ap.RawDescriptionHelpFormatter)
@@ -44,25 +74,17 @@ def main(scr):
   args = parse_args()
   cs.use_default_colors()
   cs.curs_set(0)
-
-  drawer = Drawer(scr)
-  game = Game(drawer.redraw, args.rate, drawer.width, drawer.height)
-
-  controller = KeyController(
-    game.new_player(),
-    cs.KEY_UP, cs.KEY_DOWN, cs.KEY_RIGHT, cs.KEY_LEFT)
-
   scr.refresh()
-  game.daemon = True
-  game.start()
+
+  gs = GameSession(scr, args.rate)
 
   # Read input
   while True:
-    c = scr.getch()
-    if c == ord(ct.K_QUIT):
+    k = scr.getch()
+    if k == ord(ct.K_QUIT):
       break
     else:
-      controller.handle_key(c)
+      gs.handle_key(k)
 
 
 if __name__ == '__main__':

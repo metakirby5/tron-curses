@@ -25,3 +25,4 @@ CPU_COLORS = 4
 
 # Key consants
 K_QUIT = 'q'
+K_RESTART = 'r'

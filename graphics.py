@@ -35,5 +35,5 @@ class Drawer(object):
           tile.y, tile.x,
           CHARS['TRAIL'] if tile.kind == ct.T_TRAIL else \
           CHARS[game.players[tile.id].dir],
-          cs.color_pair(tile.id and tile.id % ct.CPU_COLORS + 1))
+          cs.color_pair(tile.id % ct.CPU_COLORS + 1))
     self._field.refresh()
