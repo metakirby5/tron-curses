@@ -10,6 +10,11 @@ SOUTH = 'S'
 EAST = 'E'
 WEST = 'W'
 
+# Tile constants
+T_FLOOR = 0
+T_TRAIL = 1
+T_PLAYER = 2
+
 # Color constants
 P_WHITE   = 0
 P_BLUE    = 1

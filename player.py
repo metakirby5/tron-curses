@@ -7,8 +7,7 @@ class Player(object):
     self.id = self.__class__.cur_id
     self.__class__.cur_id += 1
 
-    self.x = x
-    self.y = y
+    self.set_pos(x, y)
     self.set_dir(dir)
 
     self.alive = True
@@ -21,6 +20,7 @@ class Player(object):
     self.y = y
 
   def set_dir(self, dir):
+    self.dir = dir
     self.dx = 1 if dir == ct.EAST else -1 if dir == ct.WEST else 0
     self.dy = 1 if dir == ct.SOUTH else -1 if dir == ct.NORTH else 0
 
