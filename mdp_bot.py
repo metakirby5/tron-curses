@@ -45,7 +45,7 @@ def move(board, player):
             for a in src.neighbors:
 
                 dest = src.neighbors[a]
-                reward = ct.REWARDS[dest.kind]
+                reward = ct.REWARDS[ct.T_FLOOR if dest is player_tile else dest.kind]
                 value = (reward + ct.DISCOUNT * dest.value)
 
                 if policy is None or value > best:
