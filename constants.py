@@ -1,3 +1,5 @@
+import curses as cs
+
 # Defaults
 DEFAULTS = {
   'rate': 0.1,
@@ -24,5 +26,9 @@ P_GREEN   = 4
 CPU_COLORS = 4
 
 # Key consants
-K_QUIT = 'q'
-K_RESTART = 'r'
+K_QUIT = ord('q')
+K_RESTART = ord('r')
+K_PAUSE = ord('p')
+
+# Misc. constants
+PREGAME_DELAY = 3

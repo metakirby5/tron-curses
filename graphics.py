@@ -25,8 +25,29 @@ class Drawer(object):
     cs.init_pair(ct.P_GREEN,   cs.COLOR_GREEN,  -1)
 
   def redraw(self, game):
+    # Handle status
+    self._status.clear()
+    if game.running:
+      if game.paused:
+        self._status.addstr(0, 0, 'PAUSED')
+    else:
+      if game.pregame:
+        self._status.addstr(0, 0, '{}...'.format(game.countdown))
+      else:
+        self._status.addstr(0, 0, 'WINNER: PLAYER {}'.format(game.winner.id))
+    self._status.refresh()
+
     # Handle field
     self._field.clear()
+
+    # Player markers
+    if game.pregame:
+      for player in game.players.itervalues():
+        self._field.addstr(
+          player.y - 2, player.x,
+          'PLAYER {}'.format(player.id))
+
+    # Tiles
     for tile in game.grid.flat:
       if tile.kind == ct.T_FLOOR:
         pass
@@ -36,4 +57,5 @@ class Drawer(object):
           CHARS['TRAIL'] if tile.kind == ct.T_TRAIL else \
           CHARS[game.players[tile.id].dir],
           cs.color_pair(tile.id % ct.CPU_COLORS + 1))
+
     self._field.refresh()

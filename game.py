@@ -29,34 +29,47 @@ class Game(Thread):
 
   # Game loop
   def run(self):
-    self.running = True
+    # TODO state machine
+    self.running = False
+    self.pregame = True
+    self.paused = False
     self.place_players()
 
+    for i in xrange(ct.PREGAME_DELAY):
+      self.countdown = ct.PREGAME_DELAY - i
+      self.redraw(self)
+      sleep(1)
+
+    self.pregame = False
+    self.running = True
     while self.running:
-      # Move each player
-      for player in self.players.itervalues():
-        if not player.alive:
-          continue
+      if not self.paused:
+        # Move each player
+        for player in self.players.itervalues():
+          if not player.alive:
+            continue
 
-        self.grid[player.x, player.y].kind = ct.T_TRAIL
-        player.step()
+          self.grid[player.x, player.y].kind = ct.T_TRAIL
+          player.step()
 
-        # Check collision
-        if 0 <= player.x < self.width and 0 <= player.y < self.height:
-          cur = self.grid[player.x, player.y]
-          if cur.kind != ct.T_FLOOR:
+          # Check collision
+          if 0 <= player.x < self.width and 0 <= player.y < self.height:
+            cur = self.grid[player.x, player.y]
+            if cur.kind != ct.T_FLOOR:
+              player.kill()
+              player.unstep()
+            else:
+              cur.kind = ct.T_PLAYER
+              cur.id = player.id
+          else:
             player.kill()
             player.unstep()
-          else:
-            cur.kind = ct.T_PLAYER
-            cur.id = player.id
-        else:
-          player.kill()
-          player.unstep()
 
-      # If one player left, end the game
-      if sum(player.alive for player in self.players.itervalues()) == 1:
-        self.running = False
+        # If one player left, end the game
+        if sum(player.alive for player in self.players.itervalues()) == 1:
+          self.running = False
+          self.winner = filter(
+            lambda p: p.alive, self.players.itervalues())[0]
 
       self.redraw(self)
       sleep(self.rate)

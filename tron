@@ -37,9 +37,14 @@ class GameSession(object):
     self.game.start()
 
   def handle_key(self, k):
-    if k == ord(ct.K_RESTART):
-      self.game.stop()
-      self.start()
+    if k == ct.K_RESTART:
+      # TODO un-hack this w/ state machine
+      if not self.game.pregame:
+        self.game.stop()
+        self.start()
+    elif k == ct.K_PAUSE:
+      if not self.game.pregame:
+        self.game.paused = not self.game.paused
     else:
       for controller in self.controllers:
         controller.handle_key(k)
@@ -81,7 +86,7 @@ def main(scr):
   # Read input
   while True:
     k = scr.getch()
-    if k == ord(ct.K_QUIT):
+    if k == ct.K_QUIT:
       break
     else:
       gs.handle_key(k)
