@@ -7,15 +7,30 @@ DEFAULTS = {
 }
 
 # Cardinal directions
-NORTH = 'N'
-SOUTH = 'S'
-EAST = 'E'
-WEST = 'W'
+NORTH = 'NORTH'
+SOUTH = 'SOUTH'
+EAST = 'EAST'
+WEST = 'WEST'
 
 # Tile constants
-T_FLOOR = 0
-T_TRAIL = 1
-T_PLAYER = 2
+T_FLOOR = 'T_FLOOR'
+T_TRAIL = 'T_TRAIL'
+T_PLAYER = 'T_PLAYER'
+T_SPEEDUP = 'T_SPEEDUP'
+T_SPEEDDOWN = 'T_SPEEDDOWN'
+
+# Speed constants
+SPEED_SLOW = 4
+SPEED_DEFAULT = 2
+SPEED_FAST = 1
+SPEED_MAX_TICK = 8
+
+# Powerup constants
+POWERS = [T_SPEEDUP, T_SPEEDDOWN]
+POWER_SIGMA = 5
+POWER_SPAWN_RATE = 100
+POWER_DESPAWN_RATE = 200
+POWER_DURATION = 100
 
 # Color constants
 P_WHITE   = 0
@@ -52,5 +67,5 @@ MOVE_LIST = [
 ]
 
 # Misc. constants
-TICK_RATE = 0.1
+TICK_RATE = 0.05
 PREGAME_DELAY = 3

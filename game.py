@@ -1,4 +1,5 @@
 import numpy as np
+import random as rd
 import constants as ct
 from threading import Thread
 from time import sleep
@@ -6,6 +7,7 @@ from player import Player
 from controllers import AIController
 
 
+# TODO make classes for tile types so we don't have janky fields
 class Tile(object):
   def __init__(self, kind, x, y):
     self.kind = kind
@@ -35,6 +37,7 @@ class Game(Thread):
     self.grid = np.fromfunction(
       np.vectorize(lambda x, y: Tile(ct.T_FLOOR, x, y)),
       (width, height), dtype=int)
+    self.power_tiles = []
 
   # Game loop
   def run(self):
@@ -51,6 +54,7 @@ class Game(Thread):
 
     self.pregame = False
     self.running = True
+    self.next_power_spawn = int(rd.gauss(ct.POWER_SPAWN_RATE, ct.POWER_SIGMA))
     while self.running:
       if not self.paused:
 
@@ -63,27 +67,62 @@ class Game(Thread):
           if not player.alive:
             continue
 
-          self.grid[player.x, player.y].kind = ct.T_TRAIL
+          prev_x, prev_y = player.x, player.y
           player.step()
 
-          # Check collision
-          if 0 <= player.x < self.width and 0 <= player.y < self.height:
-            cur = self.grid[player.x, player.y]
-            if cur.kind != ct.T_FLOOR:
+          # If moved
+          if player.x != prev_x or player.y != prev_y:
+            self.grid[prev_x, prev_y].kind = ct.T_TRAIL
+
+            # Check collision
+            if 0 <= player.x < self.width and 0 <= player.y < self.height:
+              cur = self.grid[player.x, player.y]
+              if cur.kind in ct.POWERS:
+                player.set_power(cur.kind)
+                cur.kind = ct.T_PLAYER
+                cur.id = player.id
+              elif cur.kind == ct.T_FLOOR:
+                cur.kind = ct.T_PLAYER
+                cur.id = player.id
+              else:
+                player.kill()
+                player.unstep()
+            else:
               player.kill()
               player.unstep()
-            else:
-              cur.kind = ct.T_PLAYER
-              cur.id = player.id
-          else:
-            player.kill()
-            player.unstep()
 
         # If one player left, end the game
-        if sum(player.alive for player in self.players.itervalues()) == 1:
+        num_alive = sum(player.alive for player in self.players.itervalues())
+        if num_alive <= 1:
           self.running = False
-          self.winner = filter(
-            lambda p: p.alive, self.players.itervalues())[0]
+          if num_alive == 0:
+            self.tie = True
+          else:
+            self.tie = False
+            self.winner = filter(
+              lambda p: p.alive, self.players.itervalues())[0]
+
+        # Spawn power
+        self.next_power_spawn -= 1
+        if self.next_power_spawn <= 0:
+          # Find a place to spawn
+          power_tile = rd.choice([t for t in self.grid.flat
+                                  if t.kind == ct.T_FLOOR])
+
+          power_tile.kind = rd.choice(ct.POWERS)
+          power_tile.despawn_timer = int(rd.gauss(
+            ct.POWER_DESPAWN_RATE, ct.POWER_SIGMA))
+          self.power_tiles.append(power_tile)
+
+          self.next_power_spawn = int(
+            rd.gauss(ct.POWER_SPAWN_RATE, ct.POWER_SIGMA))
+
+        # Despawn powers
+        for power_tile in self.power_tiles[:]:
+          power_tile.despawn_timer -= 1
+          if power_tile.despawn_timer <= 0:
+            power_tile.kind = ct.T_FLOOR
+            self.power_tiles.remove(power_tile)
 
       self.redraw(self)
       sleep(ct.TICK_RATE)
