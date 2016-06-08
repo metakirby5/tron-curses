@@ -3,6 +3,7 @@ import constants as ct
 from threading import Thread
 from time import sleep
 from player import Player
+from controllers import AIController
 
 
 class Tile(object):
@@ -22,7 +23,9 @@ class Game(Thread):
     self.width = width
     self.height = height
 
+    self.cur_pid = 0
     self.players = {}
+    self.ai_controllers = []
     self.grid = np.fromfunction(
       np.vectorize(lambda x, y: Tile(ct.T_FLOOR, x, y)),
       (width, height), dtype=int)
@@ -44,6 +47,11 @@ class Game(Thread):
     self.running = True
     while self.running:
       if not self.paused:
+
+        # Tell AIs to pick next move
+        for ai in self.ai_controllers:
+          ai.handle_tick(self.grid)
+
         # Move each player
         for player in self.players.itervalues():
           if not player.alive:
@@ -90,7 +98,15 @@ class Game(Thread):
       tile.kind = ct.T_PLAYER
       tile.id = player.id
 
+  def next_pid(self):
+    pid = self.cur_pid
+    self.cur_pid += 1
+    return pid
+
   def new_player(self):
-    p = Player()
+    p = Player(id=self.next_pid())
     self.players[p.id] = p
     return p
+
+  def add_ai(self, alg):
+    self.ai_controllers.append(AIController(alg, self.new_player()))

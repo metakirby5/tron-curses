@@ -35,4 +35,4 @@ class AIController(Controller):
     super(self.__class__, self).__init__(player)
 
   def handle_tick(self, board):
-    self.direct_player(alg(board))
+    self.direct_player(alg(board, self.player))

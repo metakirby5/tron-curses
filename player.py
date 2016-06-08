@@ -4,9 +4,12 @@ from game_exceptions import InvalidDirectionError
 class Player(object):
   cur_id = 0
 
-  def __init__(self, x=0, y=0, dir=None):
-    self.id = self.__class__.cur_id
-    self.__class__.cur_id += 1
+  def __init__(self, id=None, x=0, y=0, dir=None):
+    if id is None:
+      self.id = self.__class__.cur_id
+      self.__class__.cur_id += 1
+    else:
+      self.id = id
 
     self.set_pos(x, y)
     self.set_dir(dir)
