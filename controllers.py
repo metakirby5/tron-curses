@@ -33,6 +33,7 @@ class KeyController(Controller):
 class AIController(Controller):
   def __init__(self, alg, player=None):
     super(self.__class__, self).__init__(player)
+    self.alg = alg
 
   def handle_tick(self, board):
-    self.direct_player(alg(board, self.player))
+    self.direct_player(self.alg(board, self.player))
