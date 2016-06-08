@@ -11,13 +11,19 @@ class Tile(object):
     self.kind = kind
     self.x = x
     self.y = y
+    self.policy = None
+    self.neighbors = {}
+    self.value = 0
+
+  def add_neighbor(self, direction, neighbor):
+    self.neighbors[direction] = neighbor
 
 
 class Game(Thread):
   def __init__(self, redraw, width, height):
     super(self.__class__, self).__init__()
     self.daemon = True
-    
+
     self.redraw = redraw
     self.width = width
     self.height = height

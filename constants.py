@@ -30,6 +30,27 @@ K_QUIT = ord('q')
 K_RESTART = ord('r')
 K_PAUSE = ord('p')
 
+# MDP constants
+REWARDS = {
+    T_FLOOR: -0.05,
+    T_TRAIL: -10.0,
+    T_PLAYER: 10.0
+}
+POLICIES = {
+    (-1, 0): NORTH,
+    (1, 0):  SOUTH,
+    (0, -1): WEST,
+    (0, 1):  EAST
+}
+DISCOUNT = 0.99
+MAX_ITERATIONS = 100
+MOVE_LIST = [
+    [0, 1],
+    [0, -1],
+    [1, 0],
+    [-1, 0]
+]
+
 # Misc. constants
 TICK_RATE = 0.1
 PREGAME_DELAY = 3

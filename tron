@@ -17,6 +17,7 @@ Controls:
 import curses as cs
 import argparse as ap
 import constants as ct
+import mdp_bot
 from controllers import KeyController, AIController
 from graphics import Drawer
 from game import Game
@@ -35,8 +36,7 @@ class GameSession(object):
     for controller in self.controllers:
       controller.player = self.game.new_player()
     for _ in xrange(self.cpus):
-      # TODO @ RICHARD: replace lambda with MDP AI
-      self.game.add_ai(lambda b, p: ct.EAST)
+      self.game.add_ai(mdp_bot.move)
     self.game.start()
 
   def add_controller(self, controller):
