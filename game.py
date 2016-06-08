@@ -1,5 +1,6 @@
 import numpy as np
 import constants as ct
+from collections import defaultdict
 from threading import Thread
 from time import sleep
 from player import Player
@@ -11,13 +12,18 @@ class Tile(object):
     self.kind = kind
     self.x = x
     self.y = y
-    self.policy = None
     self.neighbors = {}
-    self.value = 0
-    self.dist = 0
+
+    # AI-specific
+    self.policy = {}
+    self.value = defaultdict(int)
+    self.cone_multiplier = 1
 
   def add_neighbor(self, direction, neighbor):
     self.neighbors[direction] = neighbor
+
+  def reset_cone(self):
+    self.cone_multiplier = 1
 
 
 class Game(Thread):
@@ -35,6 +41,7 @@ class Game(Thread):
     self.grid = np.fromfunction(
       np.vectorize(lambda x, y: Tile(ct.T_FLOOR, x, y)),
       (width, height), dtype=int)
+    self.build_graph()
 
   # Game loop
   def run(self):
@@ -90,6 +97,14 @@ class Game(Thread):
 
   def stop(self):
     self.running = False
+
+  def build_graph(self):
+    for tile in self.grid.flat:
+      for dx, dy in ct.MOVE_LIST:
+        x = tile.x + dx
+        y = tile.y + dy
+        if 0 <= x < self.width and 0 <= y < self.height:
+          tile.add_neighbor((dy, dx), self.grid[x, y])
 
   # TODO better player placement
   def place_players(self):
