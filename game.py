@@ -104,7 +104,7 @@ class Game(Thread):
         x = tile.x + dx
         y = tile.y + dy
         if 0 <= x < self.width and 0 <= y < self.height:
-          tile.add_neighbor((dy, dx), self.grid[x, y])
+          tile.add_neighbor((dx, dy), self.grid[x, y])
 
   # TODO better player placement
   def place_players(self):

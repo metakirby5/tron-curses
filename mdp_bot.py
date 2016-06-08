@@ -3,7 +3,7 @@ import numpy as np
 from game import Tile
 from sys import stderr
 
-def weight_cone(board, players, depth=3):
+def weight_cone(board, players, player, depth=3):
     """ Basic idea: go forward, left & right (recursively)
              *
         o -> *
@@ -15,7 +15,7 @@ def weight_cone(board, players, depth=3):
 def move(board, players, player):
     print >>stderr, "it works!"
 
-    weight_cone(board, players)
+    weight_cone(board, players, player)
     h, w = board.shape
 
     # USE THIS TO RESET CONE MULTIPLIER
