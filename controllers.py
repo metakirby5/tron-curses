@@ -1,9 +1,16 @@
 import constants as ct
+from game_exceptions import InvalidDirectionError
 
 class Controller(object):
   def __init__(self, player=None):
     self.player = player
 
+  def direct_player(self, dir):
+    if self.player:
+      try:
+        self.player.set_dir(dir)
+      except InvalidDirectionError:
+        pass
 
 class KeyController(Controller):
   def __init__(self, key_n, key_s, key_e, key_w, player=None):
@@ -17,12 +24,10 @@ class KeyController(Controller):
     }
 
   def handle_key(self, k):
-    if self.player:
-      try:
-        self.player.set_dir(self.keymap[k])
-      except KeyError:
-        # Ignore
-        pass
+    try:
+      self.direct_player(self.keymap[k])
+    except KeyError:
+      pass
 
 
 class AIController(Controller):
@@ -30,5 +35,4 @@ class AIController(Controller):
     super(self.__class__, self).__init__(player)
 
   def handle_tick(self, board):
-    if self.player:
-      self.player.set_dir(alg(board))
+    self.direct_player(alg(board))
