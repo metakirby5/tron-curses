@@ -22,7 +22,7 @@ class Game(Thread):
     self.width = width
     self.height = height
 
-    self.cur_pid = 0
+    self.cur_pid = 1
     self.players = {}
     self.ai_controllers = []
     self.grid = np.fromfunction(

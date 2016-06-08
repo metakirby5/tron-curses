@@ -26,6 +26,7 @@ class Player(object):
   def set_dir(self, dir):
     try:
       # No 180 degree turns allowed
+      # TODO: fix bug of turning twice before next tick
       if self.dir == ct.NORTH and dir == ct.SOUTH or \
          self.dir == ct.SOUTH and dir == ct.NORTH or \
          self.dir == ct.EAST  and dir == ct.WEST  or \

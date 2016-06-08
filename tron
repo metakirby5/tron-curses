@@ -4,6 +4,13 @@
 tron-curses
 
 A curses port of tron with MDP AI.
+
+Controls:
+  q           quit
+  r           restart
+  p           pause
+  arrow keys  player 1
+  wasd        player 2 (disabled by default)
 """
 
 # Global
@@ -20,13 +27,7 @@ class GameSession(object):
     self.scr = scr
     self.cpus = cpus
     self.drawer = Drawer(scr)
-
-    self.controllers = [
-      KeyController(cs.KEY_UP, cs.KEY_DOWN, cs.KEY_RIGHT, cs.KEY_LEFT),
-      KeyController(ord('w'), ord('s'), ord('d'), ord('a')),
-    ]
-
-    self.start()
+    self.controllers = []
 
   def start(self):
     self.game = Game(
@@ -37,6 +38,9 @@ class GameSession(object):
       # TODO @ RICHARD: replace lambda with MDP AI
       self.game.add_ai(lambda b, p: ct.EAST)
     self.game.start()
+
+  def add_controller(self, controller):
+    self.controllers.append(controller)
 
   def handle_key(self, k):
     if k == ct.K_RESTART:
@@ -77,13 +81,18 @@ def parse_args():
   return parser.parse_args()
 
 
-def main(scr):
-  args = parse_args()
+def main(scr, args):
   cs.use_default_colors()
   cs.curs_set(0)
   scr.refresh()
 
   gs = GameSession(scr, args.cpus)
+  gs.add_controller(
+    KeyController(cs.KEY_UP, cs.KEY_DOWN, cs.KEY_RIGHT, cs.KEY_LEFT))
+  if args.second_player:
+    gs.add_controller(
+      KeyController(ord('w'), ord('s'), ord('d'), ord('a')))
+  gs.start()
 
   # Read input
   while True:
@@ -95,4 +104,4 @@ def main(scr):
 
 
 if __name__ == '__main__':
-  cs.wrapper(main)
+  cs.wrapper(main, parse_args())
