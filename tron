@@ -16,9 +16,8 @@ from game import Game
 
 
 class GameSession(object):
-  def __init__(self, scr, rate, cpus):
+  def __init__(self, scr, cpus):
     self.scr = scr
-    self.rate = rate
     self.cpus = cpus
     self.drawer = Drawer(scr)
 
@@ -31,8 +30,7 @@ class GameSession(object):
 
   def start(self):
     self.game = Game(
-      self.drawer.redraw, self.rate,
-      self.drawer.width, self.drawer.height)
+      self.drawer.redraw, self.drawer.width, self.drawer.height)
     for controller in self.controllers:
       controller.player = self.game.new_player()
     for _ in xrange(self.cpus):
@@ -58,14 +56,14 @@ def parse_args():
   parser = ap.ArgumentParser(description=__doc__,
                              formatter_class=ap.RawDescriptionHelpFormatter)
 
-  parser.add_argument('-t',
+  parser.add_argument('-p',
                       help="""
-                      time step rate.
-                      Default: {}
-                      """.format(ct.DEFAULTS['rate']),
-                      dest='rate',
-                      type=float,
-                      default=ct.DEFAULTS['rate'])
+                      whether or not to include a second player.
+                      Default: False
+                      """,
+                      dest='second_player',
+                      action='store_true',
+                      default=False)
 
   parser.add_argument('-c',
                       help="""
@@ -85,7 +83,7 @@ def main(scr):
   cs.curs_set(0)
   scr.refresh()
 
-  gs = GameSession(scr, args.rate, args.cpus)
+  gs = GameSession(scr, args.cpus)
 
   # Read input
   while True:

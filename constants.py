@@ -31,4 +31,5 @@ K_RESTART = ord('r')
 K_PAUSE = ord('p')
 
 # Misc. constants
+TICK_RATE = 0.1
 PREGAME_DELAY = 3

@@ -14,12 +14,11 @@ class Tile(object):
 
 
 class Game(Thread):
-  def __init__(self, redraw, rate, width, height):
+  def __init__(self, redraw, width, height):
     super(self.__class__, self).__init__()
     self.daemon = True
     
     self.redraw = redraw
-    self.rate = rate
     self.width = width
     self.height = height
 
@@ -80,7 +79,7 @@ class Game(Thread):
             lambda p: p.alive, self.players.itervalues())[0]
 
       self.redraw(self)
-      sleep(self.rate)
+      sleep(ct.TICK_RATE)
 
   def stop(self):
     self.running = False
