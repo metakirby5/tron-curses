@@ -14,6 +14,7 @@ class Tile(object):
     self.policy = None
     self.neighbors = {}
     self.value = 0
+    self.dist = 0
 
   def add_neighbor(self, direction, neighbor):
     self.neighbors[direction] = neighbor
@@ -55,7 +56,7 @@ class Game(Thread):
 
         # Tell AIs to pick next move
         for ai in self.ai_controllers:
-          ai.handle_tick(self.grid)
+          ai.handle_tick(self.grid, self.players)
 
         # Move each player
         for player in self.players.itervalues():

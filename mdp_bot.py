@@ -1,8 +1,10 @@
 import constants as ct
+import numpy as np
 from sys import stderr
 
 def build_graph(board):
 
+    width, height = board.shape
     for tile in board.flat:
 
         if tile.kind == ct.T_TRAIL:
@@ -13,17 +15,33 @@ def build_graph(board):
             x = tile.x + dx
             y = tile.y + dy
 
-            width, height = board.shape
-
             if 0 <= x < width and 0 <= y < height:
                 neighbor = board[x, y]
-                tile.add_neighbor((dy, dx), neighbor)
+                if neighbor.kind != ct.T_TRAIL:
+                    tile.add_neighbor((dy, dx), neighbor)
 
+def weight_cone(board, players):
 
-def move(board, player):
+    pass
+    """for tile in board.flat:
+        if tile.kind != ct.T_PLAYER:
+            continue
+
+        for n in tile.neighbors.itervalues():
+            n.dist += 1
+
+            for nn in n.neighbors.itervalues():
+                #nn.value += 20.0
+                if nn.kind == ct.T_FLOOR:
+                    #nn.kind = ct.T_SEMI_OUT
+                    pass
+    """
+
+def move(board, players, player):
     print >>stderr, "it works!"
 
     build_graph(board)
+    weight_cone(board, players)
     h, w = board.shape
 
     player_tile = board[player.x, player.y]
@@ -57,6 +75,21 @@ def move(board, player):
 
     for d, n in player_tile.neighbors.iteritems():
         print >>stderr, "\tdir=", d, ", val=", n.value, n.kind
+
+    to_str = {
+        ct.WEST: '^',
+        ct.EAST: 'v',
+        ct.NORTH: '>',
+        ct.SOUTH: '<'
+    }
+
+    print >>stderr, '\n'.join(
+            ''.join(r) for r in
+            np.vectorize(
+                #lambda n: to_str[n.policy] or n.kind
+                lambda n: 'X\t' if n.kind == ct.T_PLAYER else str(n.value)[0:5] + '\t'
+            )(board)
+        )
 
     print >>stderr, "moving:", player_tile.policy
 
