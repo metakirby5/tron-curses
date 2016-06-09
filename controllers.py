@@ -8,7 +8,8 @@ class Controller(object):
   def direct_player(self, dir):
     if self.player:
       try:
-        self.player.set_dir(dir)
+        # Default to north
+        self.player.set_dir(dir or ct.NORTH)
       except InvalidDirectionError:
         pass
 

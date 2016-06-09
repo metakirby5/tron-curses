@@ -66,6 +66,6 @@ class Drawer(object):
           CHARS[tile.kind],
           cs.color_pair(tile.id % ct.CPU_COLORS + 1))
       elif tile.kind != ct.T_FLOOR:
-        self._field.addstr(tile.y, tile.x, CHARS[tile.kind])
+        self._field.addstr(tile.y + 1, tile.x + 1, CHARS[tile.kind])
 
     self._field.refresh()
