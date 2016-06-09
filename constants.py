@@ -61,7 +61,7 @@ POLICIES = {
     (0, 1):  SOUTH
 }
 DISCOUNT = 0.99
-MAX_ITERATIONS = 100
+MAX_ITERATIONS = 1
 MOVE_LIST = [
     [0, 1],
     [0, -1],

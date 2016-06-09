@@ -92,7 +92,7 @@ def move(board, players, player):
             src.policy[player.id] = ct.POLICIES.get(policy, policy)
             src.value[player.id] = best
 
-    out = ""
+    """out = ""
     for col in xrange(w):
         for row in xrange(h):
             n = board[row, col]
@@ -100,7 +100,7 @@ def move(board, players, player):
             #out += str(n.kind)
             out += 'X   ' if n.kind == ct.T_PLAYER else str(n.value[player.id])[0:3] + " "
         out += "\n"
-    print >>stderr, out
+    print >>stderr, out"""
 
 
     return player_tile.policy[player.id]
