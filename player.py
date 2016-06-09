@@ -13,7 +13,9 @@ class Player(object):
 
     self.set_pos(x, y)
     self.set_dir(dir)
+    self.set_power(None)
 
+    self.tick = 0
     self.alive = True
 
   def __repr__(self):
@@ -39,11 +41,32 @@ class Player(object):
     self.dx = 1 if dir == ct.EAST else -1 if dir == ct.WEST else 0
     self.dy = 1 if dir == ct.SOUTH else -1 if dir == ct.NORTH else 0
 
+  def set_power(self, power):
+    self.power = power
+
+    if power is None:
+      self.speed = ct.SPEED_DEFAULT
+    else:
+      self.power_lifetime = ct.POWER_DURATION
+      if power == ct.T_SPEEDUP:
+        self.speed = ct.SPEED_FAST
+      elif power == ct.T_SPEEDDOWN:
+        self.speed = ct.SPEED_SLOW
+
   # Performs motion update
   def step(self):
     if self.alive:
-      self.x += self.dx
-      self.y += self.dy
+      if not self.tick % self.speed:
+        self.x += self.dx
+        self.y += self.dy
+
+      if self.power:
+        self.power_lifetime -= 1
+        if not self.power_lifetime:
+          self.set_power(None)
+
+      self.tick += 1
+      self.tick %= ct.SPEED_MAX_TICK
 
   def unstep(self):
     self.x -= self.dx

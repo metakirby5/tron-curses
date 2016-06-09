@@ -3,7 +3,9 @@ import curses as cs
 
 
 CHARS = {
-  'TRAIL':  'o',
+  ct.T_TRAIL:     'o',
+  ct.T_SPEEDUP:   '+',
+  ct.T_SPEEDDOWN: '-',
   ct.NORTH: '^',
   ct.SOUTH: 'v',
   ct.EAST:  '>',
@@ -19,6 +21,10 @@ class Drawer(object):
     self._status = scr.subwin(1, self.width, 0, 0)
     self._field = scr.subwin(self.height, self.width, 1, 0)
 
+    # Adjust for border
+    self.height -= 2
+    self.width -= 2
+
     cs.init_pair(ct.P_BLUE,    cs.COLOR_BLUE,   -1)
     cs.init_pair(ct.P_RED,     cs.COLOR_RED,    -1)
     cs.init_pair(ct.P_YELLOW,  cs.COLOR_YELLOW, -1)
@@ -33,12 +39,16 @@ class Drawer(object):
     else:
       if game.pregame:
         self._status.addstr(0, 0, '{}...'.format(game.countdown))
+      elif game.tie:
+        self._status.addstr(0, 0, 'TIE')
       else:
         self._status.addstr(0, 0, 'WINNER: PLAYER {}'.format(game.winner.id))
     self._status.refresh()
 
     # Handle field
     self._field.clear()
+
+    self._field.border()
 
     # Player markers
     if game.pregame:
@@ -49,13 +59,13 @@ class Drawer(object):
 
     # Tiles
     for tile in game.grid.flat:
-      if tile.kind == ct.T_FLOOR:
-        pass
-      elif tile.kind in [ct.T_TRAIL, ct.T_PLAYER]:
+      if tile.kind in [ct.T_TRAIL, ct.T_PLAYER]:
         self._field.addstr(
-          tile.y, tile.x,
-          CHARS['TRAIL'] if tile.kind == ct.T_TRAIL else \
-          CHARS[game.players[tile.id].dir],
+          tile.y + 1, tile.x + 1,
+          CHARS[game.players[tile.id].dir] if tile.kind == ct.T_PLAYER else \
+          CHARS[tile.kind],
           cs.color_pair(tile.id % ct.CPU_COLORS + 1))
+      elif tile.kind != ct.T_FLOOR:
+        self._field.addstr(tile.y, tile.x, CHARS[tile.kind])
 
     self._field.refresh()
