@@ -5,6 +5,10 @@ tron-curses
 
 A curses port of tron with MDP AI.
 
+Power-ups:
+  *           speed up
+  !           speed down
+
 Controls:
   q           quit
   r           restart
