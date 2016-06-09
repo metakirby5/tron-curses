@@ -52,10 +52,10 @@ REWARDS = {
     T_PLAYER: 10.0
 }
 POLICIES = {
-    (-1, 0): NORTH,
-    (1, 0):  SOUTH,
-    (0, -1): WEST,
-    (0, 1):  EAST
+    (-1, 0): WEST,
+    (1, 0):  EAST,
+    (0, -1): NORTH,
+    (0, 1):  SOUTH
 }
 DISCOUNT = 0.99
 MAX_ITERATIONS = 100
