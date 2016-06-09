@@ -76,12 +76,12 @@ def move(board, players, player):
 
                 # Get the value, assuming certain movement
                 dest = src.neighbors[a]
-                if dest.kind == ct.T_TRAIL:
+                if dest.kind == ct.T_TRAIL or (dest.kind == ct.T_PLAYER and dest != player_tile):
                     continue
-                if (dest.kind == ct.T_PLAYER and dest != player_tile) or dest.cone_multiplier > 1:
-                    reward = ct.REWARDS[ct.T_PLAYER] * dest.cone_multiplier
+                elif dest.cone_multiplier != 1:
+                    reward = ct.REWARDS[ct.T_ATTACK] * dest.cone_multiplier
                 else:
-                    reward = ct.REWARDS[ct.T_FLOOR]
+                    reward = ct.REWARDS[ct.T_FLOOR if dest.kind == ct.T_PLAYER else dest.kind]
                 value = (reward + ct.DISCOUNT * dest.value[player.id])
 
                 # Update if we hava a better expected value

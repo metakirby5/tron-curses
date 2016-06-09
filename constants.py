@@ -18,6 +18,7 @@ T_TRAIL = 'T_TRAIL'
 T_PLAYER = 'T_PLAYER'
 T_SPEEDUP = 'T_SPEEDUP'
 T_SPEEDDOWN = 'T_SPEEDDOWN'
+T_ATTACK = 'T_ATTACK'
 
 # Speed constants
 SPEED_SLOW = 4
@@ -48,8 +49,10 @@ K_PAUSE = ord('p')
 # MDP constants
 REWARDS = {
     T_FLOOR: -0.05,
-    T_TRAIL: -10.0,
-    T_PLAYER: 10.0
+    T_TRAIL: -100.0,
+    T_ATTACK: 10.0,
+    T_SPEEDUP: 5.0,
+    T_SPEEDDOWN: -5.0
 }
 POLICIES = {
     (-1, 0): WEST,
