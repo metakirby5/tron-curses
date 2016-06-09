@@ -34,7 +34,7 @@ K_PAUSE = ord('p')
 REWARDS = {
     T_FLOOR: -0.05,
     T_TRAIL: -10.0,
-    T_PLAYER: 10.0
+    T_PLAYER: 5.0
 }
 POLICIES = {
     (-1, 0): WEST,

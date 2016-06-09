@@ -36,14 +36,14 @@ def set_cone(player, tile, depth):
     if depth == 0 or tile.kind == ct.T_TRAIL or dirs[player.dir] not in tile.neighbors:
         return
 
-    tile.cone_multiplier += 0.1 * depth
+    tile.cone_multiplier += 0.2 * depth
     tile = tile.neighbors[dirs[player.dir]]
     set_cone(player, tile, depth - 1)
 
     for direction in adj[player.dir]:
         if dirs[direction] in tile.neighbors:
             left = tile.neighbors[dirs[direction]]
-            left.cone_multiplier += 0.1 * depth
+            left.cone_multiplier += 0.2 * depth
             set_cone(player, left, depth - 1)
 
 
@@ -75,7 +75,7 @@ def move(board, players, player):
                 dest = src.neighbors[a]
                 if dest.kind == ct.T_TRAIL:
                     continue
-                reward = ct.REWARDS[ct.T_FLOOR if dest is player_tile else dest.kind]
+                reward = ct.REWARDS[ct.T_FLOOR if dest is player_tile else dest.kind] * dest.cone_multiplier
                 value = (reward + ct.DISCOUNT * dest.value[player.id])
 
                 # Update if we hava a better expected value
@@ -89,29 +89,13 @@ def move(board, players, player):
     for d, n in player_tile.neighbors.iteritems():
         print >>stderr, "\tdir=", d, ", val=", n.value, n.kind
 
-    to_str = {
-        ct.WEST: '^',
-        ct.EAST: 'v',
-        ct.NORTH: '>',
-        ct.SOUTH: '<'
-    }
-
-    """print >>stderr, '\n'.join(
-            ''.join(r) for r in
-            np.vectorize(
-                #lambda n: to_str[n.policy[player.id]] or n.kind
-                lambda n: "{}\t".format(n.cone_multiplier)
-                #lambda n: 'X\t' if n.kind == ct.T_PLAYER else str(n.value[player.id])[0:5] + '\t'
-            )(board)
-        )
-    """
-
     out = ""
     for col in xrange(w):
         for row in xrange(h):
             n = board[row, col]
-            out += "{}".format(str(n.cone_multiplier) + "    ")[0:3]
+            #out += "{}".format(str(n.cone_multiplier) + "    ")[0:3]
             #out += str(n.kind)
+            out += 'X   ' if n.kind == ct.T_PLAYER else str(n.value[player.id])[0:3] + " "
         out += "\n"
     print >>stderr, out
 
