@@ -25,10 +25,12 @@ def weight_cone(board, players, player, depth=3):
              o -> ...
     """
 
+    # Create density cone for all enemy players
     for p in [p for p in players.itervalues() if p != player]:
         tile = board[p.x, p.y]
         if dirs[p.dir] in tile.neighbors:
-            set_cone(p, tile.neighbors[dirs[p.dir]], depth)
+            next = tile.neighbors[dirs[p.dir]]
+            set_cone(p, next, depth)
 
 
 def set_cone(player, tile, depth):
@@ -36,10 +38,12 @@ def set_cone(player, tile, depth):
     if depth == 0 or tile.kind == ct.T_TRAIL or dirs[player.dir] not in tile.neighbors:
         return
 
+    # Set multiplier for this tile
     tile.cone_multiplier += 0.2 * depth
     tile = tile.neighbors[dirs[player.dir]]
     set_cone(player, tile, depth - 1)
 
+    # Do the same for the adjacent tiles
     for direction in adj[player.dir]:
         if dirs[direction] in tile.neighbors:
             left = tile.neighbors[dirs[direction]]
@@ -48,7 +52,6 @@ def set_cone(player, tile, depth):
 
 
 def move(board, players, player):
-    print >>stderr, "it works!"
 
     player_tile = board[player.x, player.y]
     h, w = board.shape
@@ -75,7 +78,10 @@ def move(board, players, player):
                 dest = src.neighbors[a]
                 if dest.kind == ct.T_TRAIL:
                     continue
-                reward = ct.REWARDS[ct.T_FLOOR if dest is player_tile else dest.kind] * dest.cone_multiplier
+                if (dest.kind == ct.T_PLAYER and dest != player_tile) or dest.cone_multiplier > 1:
+                    reward = ct.REWARDS[ct.T_PLAYER] * dest.cone_multiplier
+                else:
+                    reward = ct.REWARDS[ct.T_FLOOR]
                 value = (reward + ct.DISCOUNT * dest.value[player.id])
 
                 # Update if we hava a better expected value
@@ -85,9 +91,6 @@ def move(board, players, player):
 
             src.policy[player.id] = ct.POLICIES.get(policy, policy)
             src.value[player.id] = best
-
-    for d, n in player_tile.neighbors.iteritems():
-        print >>stderr, "\tdir=", d, ", val=", n.value, n.kind
 
     out = ""
     for col in xrange(w):
@@ -99,8 +102,5 @@ def move(board, players, player):
         out += "\n"
     print >>stderr, out
 
-    print >>stderr, "moving:", player_tile.policy[player.id]
 
     return player_tile.policy[player.id]
-
-    # return ct.WEST
