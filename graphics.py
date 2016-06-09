@@ -4,8 +4,8 @@ import curses as cs
 
 CHARS = {
   ct.T_TRAIL:     'o',
-  ct.T_SPEEDUP:   '*',
-  ct.T_SPEEDDOWN: '@',
+  ct.T_SPEEDUP:   '+',
+  ct.T_SPEEDDOWN: '-',
   ct.NORTH: '^',
   ct.SOUTH: 'v',
   ct.EAST:  '>',
@@ -20,6 +20,10 @@ class Drawer(object):
 
     self._status = scr.subwin(1, self.width, 0, 0)
     self._field = scr.subwin(self.height, self.width, 1, 0)
+
+    # Adjust for border
+    self.height -= 2
+    self.width -= 2
 
     cs.init_pair(ct.P_BLUE,    cs.COLOR_BLUE,   -1)
     cs.init_pair(ct.P_RED,     cs.COLOR_RED,    -1)
@@ -44,6 +48,8 @@ class Drawer(object):
     # Handle field
     self._field.clear()
 
+    self._field.border()
+
     # Player markers
     if game.pregame:
       for player in game.players.itervalues():
@@ -55,7 +61,7 @@ class Drawer(object):
     for tile in game.grid.flat:
       if tile.kind in [ct.T_TRAIL, ct.T_PLAYER]:
         self._field.addstr(
-          tile.y, tile.x,
+          tile.y + 1, tile.x + 1,
           CHARS[game.players[tile.id].dir] if tile.kind == ct.T_PLAYER else \
           CHARS[tile.kind],
           cs.color_pair(tile.id % ct.CPU_COLORS + 1))
